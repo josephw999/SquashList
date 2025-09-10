@@ -4,6 +4,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Platform,
+  KeyboardAvoidingView,
   View,
   StyleSheet,
 } from "react-native";
@@ -37,7 +39,7 @@ export default function SignInScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
+      <Text style={styles.title}>Sign In</Text>
 
       <TextInput
         style={styles.input}

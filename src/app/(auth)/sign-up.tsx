@@ -15,6 +15,7 @@ export default function SignUpScreen() {
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState("");
 
@@ -22,7 +23,11 @@ export default function SignUpScreen() {
     if (!isLoaded) return;
 
     try {
-      await signUp.create({ emailAddress, password });
+      await signUp.create({
+        emailAddress,
+        password,
+        username,
+      });
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setPendingVerification(true);
     } catch (err) {
@@ -75,6 +80,13 @@ export default function SignUpScreen() {
             placeholder="Email address"
             onChangeText={setEmailAddress}
             keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            autoCapitalize="none"
+            value={username}
+            placeholder="Username"
+            onChangeText={setUsername}
           />
           <TextInput
             style={styles.input}

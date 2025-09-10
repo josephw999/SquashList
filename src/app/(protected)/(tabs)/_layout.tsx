@@ -30,7 +30,7 @@ export default function TabLayout() {
         options={{
           // headerShown: false,
           title: "Home",
-          headerTintColor: "#FF5700",
+          headerTintColor: "#00aaffff",
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
           ),

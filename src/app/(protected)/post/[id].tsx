@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import {
   View,
   Text,
@@ -8,11 +8,19 @@ import {
   FlatList,
 } from "react-native";
 import posts from "../../../../assets/data/posts.json"; // adapt your JSON structure
+import { useEffect } from "react";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams();
+  const navigation = useNavigation();
 
   const detailedPost = posts.find((post) => post.id === id);
+
+  useEffect(() => {
+    if (detailedPost) {
+      navigation.setOptions({ title: detailedPost.title });
+    }
+  }, [detailedPost]);
 
   if (!detailedPost) {
     return <Text>Post Not Found!</Text>;
@@ -22,48 +30,67 @@ export default function PostDetailed() {
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
       {/* Header Meta */}
       <View
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}
-      >
-        <Text style={{ marginRight: 15 }}>⏱ {detailedPost.duration}</Text>
-        <Text style={{ marginRight: 15 }}>
-          👥 {detailedPost.players} players
-        </Text>
-        <Text>
-          ⭐ {detailedPost.rating.score} ({detailedPost.rating.count})
-        </Text>
-      </View>
-
-      {/* Tags */}
-      <View
         style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 8,
-          marginBottom: 15,
+          borderWidth: 1,
+          borderColor: "#E8E8E8",
+          borderRadius: 10,
+          padding: 12,
+          marginBottom: 20,
         }}
       >
-        {detailedPost.tags.map((tag: string, index: number) => (
-          <View
-            key={index}
-            style={{
-              backgroundColor: "#E8E8E8",
-              paddingHorizontal: 10,
-              paddingVertical: 5,
-              borderRadius: 15,
-            }}
-          >
-            <Text style={{ fontSize: 13 }}>{tag}</Text>
-          </View>
-        ))}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+        >
+          <Text style={{ marginRight: 15 }}>⏱ {detailedPost.duration}</Text>
+          <Text style={{ marginRight: 15 }}>
+            👥 {detailedPost.players} players
+          </Text>
+          <Text>
+            ⭐ {detailedPost.rating.score} ({detailedPost.rating.count})
+          </Text>
+        </View>
+
+        {/* Tags */}
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 8,
+            marginBottom: 15,
+          }}
+        >
+          {detailedPost.tags.map((tag: string, index: number) => (
+            <View
+              key={index}
+              style={{
+                backgroundColor: "#E8E8E8",
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 15,
+              }}
+            >
+              <Text style={{ fontSize: 13 }}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+        <Text style={{ color: "gray" }}>{detailedPost.description}</Text>
       </View>
 
-      {/* Coach */}
+      {/* User */}
       <View
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 20,
+          borderWidth: 1,
+          borderColor: "#E8E8E8",
+          borderRadius: 10,
+          padding: 12,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -73,7 +100,6 @@ export default function PostDetailed() {
           />
           <View>
             <Text style={{ fontWeight: "bold" }}>{detailedPost.user.name}</Text>
-            <Text style={{ color: "gray" }}>{detailedPost.user.name}</Text>
           </View>
         </View>
         <Pressable
@@ -89,45 +115,64 @@ export default function PostDetailed() {
       </View>
 
       {/* Drills */}
-      <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}>
-        Drills ({detailedPost.drills.length})
-      </Text>
-      {detailedPost.drills.map((drill, index) => (
-        <View
-          key={index}
-          style={{
-            borderWidth: 1,
-            borderColor: "#E8E8E8",
-            borderRadius: 10,
-            padding: 12,
-            marginBottom: 10,
-          }}
-        >
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: "#E8E8E8",
+          borderRadius: 10,
+          paddingHorizontal: 12,
+          paddingTop: 12,
+          marginBottom: 20,
+        }}
+      >
+        <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}>
+          Drills ({detailedPost.drills.length})
+        </Text>
+        {detailedPost.drills.map((drill, index) => (
           <View
+            key={index}
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 5,
+              borderWidth: 1,
+              borderColor: "#E8E8E8",
+              borderRadius: 10,
+              padding: 12,
+              marginBottom: 12,
             }}
           >
-            <Text style={{ fontWeight: "bold" }}>
-              {index + 1}. {drill.title}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginBottom: 5,
+              }}
+            >
+              <Text style={{ fontWeight: "bold" }}>
+                {index + 1}. {drill.title}
+              </Text>
+              <Text style={{ color: "gray" }}>{drill.duration}</Text>
+            </View>
+            <Text style={{ color: "gray", marginBottom: 5 }}>
+              {drill.description}
             </Text>
-            <Text style={{ color: "gray" }}>{drill.duration}</Text>
+            {drill.steps.map((step, stepIndex) => (
+              <Text key={stepIndex} style={{ fontSize: 13, color: "#444" }}>
+                • {step}
+              </Text>
+            ))}
           </View>
-          <Text style={{ color: "gray", marginBottom: 5 }}>
-            {drill.description}
-          </Text>
-          {drill.steps.map((step, stepIndex) => (
-            <Text key={stepIndex} style={{ fontSize: 13, color: "#444" }}>
-              • {step}
-            </Text>
-          ))}
-        </View>
-      ))}
+        ))}
+      </View>
 
       {/* Rate Session */}
-      <View style={{ marginVertical: 20 }}>
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: "#E8E8E8",
+          borderRadius: 10,
+          padding: 12,
+          marginBottom: 20,
+        }}
+      >
         <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
           Rate This Session
         </Text>

@@ -7,7 +7,6 @@ export default function AppLayout() {
       <Stack.Screen
         name="post/[id]"
         options={{
-          headerTitle: "",
           animation: "slide_from_bottom",
           headerBackButtonDisplayMode: "minimal",
         }}

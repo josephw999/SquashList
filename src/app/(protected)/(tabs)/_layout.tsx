@@ -1,6 +1,7 @@
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
+import { Provider as PaperProvider } from "react-native-paper";
 
 export default function TabLayout() {
   const { isSignedIn } = useAuth();
@@ -30,7 +31,7 @@ export default function TabLayout() {
         options={{
           // headerShown: false,
           title: "Home",
-          headerTintColor: "#00aaffff",
+          headerTintColor: "#000000ff",
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
           ),

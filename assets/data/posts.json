@@ -3,7 +3,6 @@
     "id": "1",
     "title": "Precision Practice",
     "description": "Perfect your shot accuracy with targeted drilling for competitive play.",
-    "image": null,
     "created_at": "2025-09-01T12:00:00Z",
     "duration": "40min",
     "players": "2 players",
@@ -19,6 +18,7 @@
     "drills": [
       {
         "title": "Court Sprints",
+        "id": "123",
         "description": "High-intensity court movement to build endurance",
         "duration": "3:00",
         "steps": [
@@ -29,6 +29,7 @@
       },
       {
         "title": "Drop Shot Practice",
+        "id": "321",
         "description": "Practice precision drop shots from various positions",
         "duration": "4:00",
         "steps": [
@@ -43,7 +44,6 @@
     "id": "2",
     "title": "Freakish Endurance",
     "description": "Intense endurance session designed to push your cardiovascular limits and improve court movement.",
-    "image": null,
     "created_at": "2025-09-03T15:30:00Z",
     "duration": "45min",
     "players": "1 player",
@@ -59,6 +59,7 @@
     "drills": [
       {
         "title": "Court Sprints",
+        "id": "456",
         "description": "High-intensity court movement to build endurance",
         "duration": "3:00",
         "steps": [
@@ -69,6 +70,7 @@
       },
       {
         "title": "Drop Shot Practice",
+        "id": "654",
         "description": "Practice precision drop shots from various positions",
         "duration": "4:00",
         "steps": [

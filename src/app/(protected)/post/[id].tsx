@@ -46,9 +46,7 @@ export default function PostDetailed() {
           }}
         >
           <Text style={{ marginRight: 15 }}>⏱ {detailedPost.duration}</Text>
-          <Text style={{ marginRight: 15 }}>
-            👥 {detailedPost.players} players
-          </Text>
+          <Text style={{ marginRight: 15 }}>👥 {detailedPost.players}</Text>
           <Text>
             ⭐ {detailedPost.rating.score} ({detailedPost.rating.count})
           </Text>

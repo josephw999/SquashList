@@ -34,7 +34,6 @@ export default function CreateScreen() {
   };
 
   const [playerDropdownVisible, setPlayerDropdownVisible] = useState(false);
-  const [ballDropdownVisible, setBallDropdownVisible] = useState(false);
 
   const playerOptions = [
     "1 player",
@@ -43,8 +42,6 @@ export default function CreateScreen() {
     "4 players",
     "5+ players",
   ];
-
-  const ballOptions = ["Any", "Double Yellow", "Single Yellow", "Red", "Blue"];
 
   const focusAreas = [
     "Drop",
@@ -144,24 +141,6 @@ export default function CreateScreen() {
                   <Text>{selectedPlayer || "Select Player Count"}</Text>
                 </TouchableOpacity>
               </View>
-
-              {/* Ball Type Dropdown */}
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-                  Ball Type
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setBallDropdownVisible(true)}
-                  style={{
-                    backgroundColor: "#F0F0F0",
-                    padding: 10,
-                    borderRadius: 8,
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text>{selectedBall || "Select Ball Type"}</Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
             <Modal
@@ -193,49 +172,6 @@ export default function CreateScreen() {
                       onPress={() => {
                         setSelectedPlayer(item);
                         setPlayerDropdownVisible(false);
-                      }}
-                      style={{
-                        paddingVertical: 10,
-                        paddingHorizontal: 5,
-                      }}
-                    >
-                      <Text>{item}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </TouchableOpacity>
-            </Modal>
-
-            {/* Ball Type Dropdown */}
-            <Modal
-              transparent
-              visible={ballDropdownVisible}
-              animationType="fade"
-              onRequestClose={() => setBallDropdownVisible(false)}
-            >
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: "rgba(0,0,0,0.3)",
-                  justifyContent: "center",
-                  paddingHorizontal: 40,
-                }}
-                onPress={() => setBallDropdownVisible(false)}
-                activeOpacity={1}
-              >
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    padding: 10,
-                  }}
-                >
-                  {ballOptions.map((item) => (
-                    <TouchableOpacity
-                      key={item}
-                      onPress={() => {
-                        setSelectedBall(item);
-                        setBallDropdownVisible(false);
                       }}
                       style={{
                         paddingVertical: 10,
@@ -285,33 +221,6 @@ export default function CreateScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-
-            {/* Intensity */}
-            <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-              Intensity (1–10)
-            </Text>
-            <TextInput
-              keyboardType="numeric"
-              value={intensity}
-              onChangeText={(val) => {
-                // Ensure only values between 1–10
-                if (/^\d{0,2}$/.test(val)) {
-                  const num = parseInt(val);
-                  if (!isNaN(num) && num >= 1 && num <= 10) {
-                    setIntensity(val);
-                  } else if (val === "") {
-                    setIntensity(""); // allow clearing
-                  }
-                }
-              }}
-              placeholder="1-10"
-              style={{
-                backgroundColor: "#F0F0F0",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 15,
-              }}
-            />
 
             {/* Add Drill */}
             <Text

@@ -1,4 +1,4 @@
-package com.josephweinerman.RedditClone
+package com.josephweinerman.SquashThings
 
 import android.app.Application
 import android.content.res.Configuration

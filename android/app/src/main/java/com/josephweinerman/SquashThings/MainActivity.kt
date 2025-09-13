@@ -1,4 +1,4 @@
-package com.josephweinerman.RedditClone
+package com.josephweinerman.SquashThings
 
 import android.os.Build
 import android.os.Bundle

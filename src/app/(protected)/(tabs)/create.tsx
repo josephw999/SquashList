@@ -9,23 +9,29 @@ import {
   Pressable,
   TouchableOpacity,
   Modal,
-  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
+
+type Drill = {
+  name: string;
+  minutes: number;
+  seconds: number;
+  description: string;
+  collapsed: boolean;
+};
 
 export default function CreateScreen() {
   const [sessionTitle, setSessionTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState("1 player");
-  const [selectedBall, setSelectedBall] = useState("Any");
   const [selectedFocus, setSelectedFocus] = useState<string[]>([]);
-  const [drillName, setDrillName] = useState("");
-  const [drillDuration, setDrillDuration] = useState("180");
-  const [drillDesc, setDrillDesc] = useState("");
-  const [drillSteps, setDrillSteps] = useState([""]);
-  const [intensity, setIntensity] = useState("5");
+  const [playerDropdownVisible, setPlayerDropdownVisible] = useState(false);
+  const [drills, setDrills] = useState<Drill[]>([
+    { name: "", minutes: 0, seconds: 0, description: "", collapsed: false },
+  ]);
 
   const toggleFocus = (item: string) => {
     setSelectedFocus((prev) =>
@@ -33,7 +39,25 @@ export default function CreateScreen() {
     );
   };
 
-  const [playerDropdownVisible, setPlayerDropdownVisible] = useState(false);
+  const addDrill = () => {
+    setDrills((prev) =>
+      prev
+        .map((d, i) => (i === prev.length - 1 ? { ...d, collapsed: true } : d))
+        .concat({
+          name: "",
+          minutes: 0,
+          seconds: 0,
+          description: "",
+          collapsed: false,
+        })
+    );
+  };
+
+  const updateDrill = (i: number, field: Partial<Drill>) => {
+    setDrills((prev) =>
+      prev.map((d, idx) => (idx === i ? { ...d, ...field } : d))
+    );
+  };
 
   const playerOptions = [
     "1 player",
@@ -42,7 +66,6 @@ export default function CreateScreen() {
     "4 players",
     "5+ players",
   ];
-
   const focusAreas = [
     "Drop",
     "Lob",
@@ -73,13 +96,7 @@ export default function CreateScreen() {
             <TouchableOpacity onPress={() => router.back()}>
               <AntDesign name="close" size={28} color="black" />
             </TouchableOpacity>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                marginLeft: 10,
-              }}
-            >
+            <Text style={{ fontSize: 20, fontWeight: "bold", marginLeft: 10 }}>
               Create Training Session
             </Text>
           </View>
@@ -106,7 +123,7 @@ export default function CreateScreen() {
               Description *
             </Text>
             <TextInput
-              placeholder="Describe what this session focuses on and who it's for..."
+              placeholder="Describe the session..."
               value={description}
               onChangeText={setDescription}
               multiline
@@ -120,28 +137,19 @@ export default function CreateScreen() {
               }}
             />
 
-            {/* Player & Ball Type */}
-            {/* Players Dropdown */}
-
-            <View style={{ flexDirection: "row", gap: 10, marginBottom: 15 }}>
-              {/* Players Dropdown */}
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-                  Players
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setPlayerDropdownVisible(true)}
-                  style={{
-                    backgroundColor: "#F0F0F0",
-                    padding: 10,
-                    borderRadius: 8,
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text>{selectedPlayer || "Select Player Count"}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            {/* Players */}
+            <Text style={{ fontWeight: "600", marginBottom: 5 }}>Players</Text>
+            <TouchableOpacity
+              onPress={() => setPlayerDropdownVisible(true)}
+              style={{
+                backgroundColor: "#F0F0F0",
+                padding: 10,
+                borderRadius: 8,
+                marginBottom: 15,
+              }}
+            >
+              <Text>{selectedPlayer}</Text>
+            </TouchableOpacity>
 
             <Modal
               transparent
@@ -173,10 +181,7 @@ export default function CreateScreen() {
                         setSelectedPlayer(item);
                         setPlayerDropdownVisible(false);
                       }}
-                      style={{
-                        paddingVertical: 10,
-                        paddingHorizontal: 5,
-                      }}
+                      style={{ paddingVertical: 10 }}
                     >
                       <Text>{item}</Text>
                     </TouchableOpacity>
@@ -194,7 +199,7 @@ export default function CreateScreen() {
                 flexDirection: "row",
                 flexWrap: "wrap",
                 gap: 8,
-                marginBottom: 15,
+                marginBottom: 20,
               }}
             >
               {focusAreas.map((item) => (
@@ -222,96 +227,108 @@ export default function CreateScreen() {
               ))}
             </View>
 
-            {/* Add Drill */}
+            {/* Drills */}
             <Text
               style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}
             >
-              Add Drill
+              Drills
             </Text>
-
-            <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-              Drill Name *
-            </Text>
-            <TextInput
-              placeholder="e.g., Court Sprints"
-              value={drillName}
-              onChangeText={setDrillName}
-              style={{
-                backgroundColor: "#F0F0F0",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 10,
-              }}
-            />
-
-            <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-              Duration (seconds)
-            </Text>
-            <TextInput
-              keyboardType="numeric"
-              value={drillDuration}
-              onChangeText={setDrillDuration}
-              style={{
-                backgroundColor: "#F0F0F0",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 10,
-              }}
-            />
-
-            <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-              Description *
-            </Text>
-            <TextInput
-              placeholder="Brief description of the drill..."
-              value={drillDesc}
-              onChangeText={setDrillDesc}
-              multiline
-              style={{
-                backgroundColor: "#F0F0F0",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 10,
-                height: 60,
-                textAlignVertical: "top",
-              }}
-            />
-
-            <Text style={{ fontWeight: "600", marginBottom: 5 }}>
-              Instructions
-            </Text>
-            {drillSteps.map((step, index) => (
-              <TextInput
-                key={index}
-                placeholder={`Step ${index + 1}...`}
-                value={step}
-                onChangeText={(text) => {
-                  const newSteps = [...drillSteps];
-                  newSteps[index] = text;
-                  setDrillSteps(newSteps);
-                }}
+            {drills.map((drill, i) => (
+              <View
+                key={i}
                 style={{
-                  backgroundColor: "#F0F0F0",
-                  padding: 10,
-                  borderRadius: 8,
-                  marginBottom: 8,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 10,
+                  padding: 15,
+                  marginBottom: 15,
                 }}
-              />
+              >
+                {drill.collapsed ? (
+                  <View>
+                    <Text style={{ fontWeight: "600" }}>
+                      {drill.name || "Untitled Drill"}
+                    </Text>
+                    <Text>
+                      {drill.minutes}m {drill.seconds}s
+                    </Text>
+                  </View>
+                ) : (
+                  <>
+                    <Text style={{ fontWeight: "600", marginBottom: 5 }}>
+                      Drill Name *
+                    </Text>
+                    <TextInput
+                      placeholder="e.g., Court Sprints"
+                      value={drill.name}
+                      onChangeText={(t) => updateDrill(i, { name: t })}
+                      style={{
+                        backgroundColor: "#F0F0F0",
+                        padding: 10,
+                        borderRadius: 8,
+                        marginBottom: 10,
+                      }}
+                    />
+
+                    {/* Minute/Second Pickers */}
+                    <Text style={{ fontWeight: "600", marginBottom: 5 }}>
+                      Duration
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Picker
+                        selectedValue={drill.minutes}
+                        style={{ flex: 1 }}
+                        onValueChange={(v) => updateDrill(i, { minutes: v })}
+                      >
+                        {Array.from({ length: 61 }).map((_, m) => (
+                          <Picker.Item key={m} label={`${m} min`} value={m} />
+                        ))}
+                      </Picker>
+                      <Picker
+                        selectedValue={drill.seconds}
+                        style={{ flex: 1 }}
+                        onValueChange={(v) => updateDrill(i, { seconds: v })}
+                      >
+                        {Array.from({ length: 60 }).map((_, s) => (
+                          <Picker.Item key={s} label={`${s} sec`} value={s} />
+                        ))}
+                      </Picker>
+                    </View>
+
+                    <Text
+                      style={{
+                        fontWeight: "600",
+                        marginBottom: 5,
+                        marginTop: 10,
+                      }}
+                    >
+                      Description
+                    </Text>
+                    <TextInput
+                      placeholder="Brief description..."
+                      value={drill.description}
+                      onChangeText={(t) => updateDrill(i, { description: t })}
+                      multiline
+                      style={{
+                        backgroundColor: "#F0F0F0",
+                        padding: 10,
+                        borderRadius: 8,
+                        height: 60,
+                        textAlignVertical: "top",
+                      }}
+                    />
+                  </>
+                )}
+              </View>
             ))}
-            <Pressable
-              onPress={() => setDrillSteps([...drillSteps, ""])}
-              style={{
-                backgroundColor: "#DCDCDC",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 20,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ fontWeight: "600" }}>+ Add Step</Text>
-            </Pressable>
 
             <Pressable
+              onPress={addDrill}
               style={{
                 backgroundColor: "black",
                 padding: 15,
@@ -325,7 +342,7 @@ export default function CreateScreen() {
               </Text>
             </Pressable>
 
-            {/* Final Create Button */}
+            {/* Create Session Button */}
             <Pressable
               style={{
                 backgroundColor: "#7A7A7A",

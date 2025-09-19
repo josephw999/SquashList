@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { Post } from "../types";
+import { Post } from "../types/types";
 import { Link } from "expo-router";
 
 type PostListItemProps = {
@@ -15,10 +15,10 @@ export default function PostListItem({ post }: PostListItemProps) {
 
       {/* META INFO */}
       <View style={styles.metaRow}>
-        <Text style={styles.meta}>⏱ {post.duration}</Text>
-        <Text style={styles.meta}>👥 {post.players}</Text>
+        <Text style={styles.meta}>⏱ {post.duration}min</Text>
+        <Text style={styles.meta}>👥 {post.player_number} players </Text>
         <Text style={styles.meta}>
-          ⭐ {post.rating.score} ({post.rating.count})
+          ⭐ {post.rating_avg} ({post.rating_count})
         </Text>
       </View>
 
@@ -38,7 +38,7 @@ export default function PostListItem({ post }: PostListItemProps) {
 
       <Link href={`/post/${post.id}`} asChild>
         <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Start Session</Text>
+          <Text style={styles.buttonText}>Open Session</Text>
         </Pressable>
       </Link>
     </View>

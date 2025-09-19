@@ -1,4 +1,4 @@
-package com.josephweinerman.SquashThings
+package com.josephweinerman.SquashList
 
 import android.app.Application
 import android.content.res.Configuration

@@ -27,6 +27,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="your-app-scheme"/>
         <data android:scheme="SquashThings"/>
+        <data android:scheme="SquashList"/>
       </intent-filter>
     </activity>
   </application>

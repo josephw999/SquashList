@@ -1,13 +1,15 @@
 export type Post = {
-  id: string;
+  id: number;
   title: string;
   description: string | null;
   user: User;
   rating: Rating;
-  duration: string;
-  players: string;
+  duration: number;
+  player_number: number;
   tags: string[];
   drills: Drill[];
+  rating_avg: number;
+  rating_count: number;
 };
 
 export type Rating = {
@@ -16,14 +18,15 @@ export type Rating = {
 };
 
 export type User = {
+  id: number;
   name: string;
-  image: string | null;
+  image: string | undefined;
 };
 
 export type Drill = {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  duration: string;
+  duration: number;
   steps: string[];
 };

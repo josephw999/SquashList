@@ -242,20 +242,83 @@ export default function CreateScreen() {
                   borderRadius: 10,
                   padding: 15,
                   marginBottom: 15,
+                  backgroundColor: "#fff",
                 }}
               >
                 {drill.collapsed ? (
-                  <View>
-                    <Text style={{ fontWeight: "600" }}>
-                      {drill.name || "Untitled Drill"}
+                  // Collapsed view
+                  <TouchableOpacity
+                    onPress={() =>
+                      setDrills((prev) =>
+                        prev.map((d, idx) =>
+                          idx === i
+                            ? { ...d, collapsed: false }
+                            : { ...d, collapsed: true }
+                        )
+                      )
+                    }
+                  >
+                    <Text style={{ fontWeight: "600", fontSize: 16 }}>
+                      {i + 1}. {drill.name || "Untitled Drill"}
                     </Text>
-                    <Text>
-                      {drill.minutes}m {drill.seconds}s
+                    <Text style={{ color: "#555", marginVertical: 2 }}>
+                      {drill.minutes}:
+                      {drill.seconds.toString().padStart(2, "0")}
                     </Text>
-                  </View>
+                    {drill.description ? (
+                      <Text
+                        style={{ color: "#555" }}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                      >
+                        {drill.description}
+                      </Text>
+                    ) : null}
+                  </TouchableOpacity>
                 ) : (
-                  <>
-                    <Text style={{ fontWeight: "600", marginBottom: 5 }}>
+                  // Expanded view
+                  <View>
+                    {/* Top bar (tappable area to collapse) */}
+                    <TouchableOpacity
+                      onPress={() =>
+                        setDrills((prev) =>
+                          prev.map((d, idx) =>
+                            idx === i
+                              ? { ...d, collapsed: true }
+                              : { ...d, collapsed: true }
+                          )
+                        )
+                      }
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text style={{ fontWeight: "600", fontSize: 16 }}>
+                        {i + 1}. {drill.name || "Untitled Drill"}
+                      </Text>
+                      {/* Trash button */}
+                      <TouchableOpacity
+                        onPress={(e) => {
+                          e.stopPropagation(); // prevent collapsing
+                          setDrills((prev) =>
+                            prev.filter((_, idx) => idx !== i)
+                          );
+                        }}
+                        style={{ paddingHorizontal: 8 }}
+                      >
+                        <AntDesign name="delete" size={22} color="black" />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+
+                    {/* Inputs (not collapsible area) */}
+                    <Text
+                      style={{
+                        fontWeight: "600",
+                        marginTop: 10,
+                        marginBottom: 5,
+                      }}
+                    >
                       Drill Name *
                     </Text>
                     <TextInput
@@ -270,7 +333,6 @@ export default function CreateScreen() {
                       }}
                     />
 
-                    {/* Minute/Second Pickers */}
                     <Text style={{ fontWeight: "600", marginBottom: 5 }}>
                       Duration
                     </Text>
@@ -322,25 +384,22 @@ export default function CreateScreen() {
                         textAlignVertical: "top",
                       }}
                     />
-                  </>
+                  </View>
                 )}
               </View>
             ))}
 
-            <Pressable
+            {/* Add Drill Button (big grey plus) */}
+            <TouchableOpacity
               onPress={addDrill}
               style={{
-                backgroundColor: "black",
-                padding: 15,
-                borderRadius: 10,
-                marginBottom: 40,
                 alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 30,
               }}
             >
-              <Text style={{ color: "white", fontWeight: "bold" }}>
-                + Add Drill
-              </Text>
-            </Pressable>
+              <AntDesign name="pluscircleo" size={40} color="#A9A9A9" />
+            </TouchableOpacity>
 
             {/* Create Session Button */}
             <Pressable

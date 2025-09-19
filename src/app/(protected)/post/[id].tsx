@@ -1,30 +1,49 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  Pressable,
-  FlatList,
-} from "react-native";
-import posts from "../../../../assets/data/posts.json"; // adapt your JSON structure
-import { useEffect } from "react";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { useEffect, useState } from "react";
+import { supabase } from "../../../lib/supabase";
+import { Post } from "../../../types/types";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
-
-  const detailedPost = posts.find((post) => post.id === id);
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (detailedPost) {
-      navigation.setOptions({ title: detailedPost.title });
-    }
-  }, [detailedPost]);
+    if (!id) return;
 
-  if (!detailedPost) {
-    return <Text>Post Not Found!</Text>;
-  }
+    const postId = Number(id);
+
+    const fetchPost = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("posts")
+        .select(
+          `
+          *,
+          user:users!posts_user_id_fkey(*),
+          drills(*)
+        `
+        )
+        .eq("id", postId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching post:", error);
+        setPost(null);
+      } else {
+        setPost(data as Post);
+        navigation.setOptions({ title: data.title });
+      }
+      setLoading(false);
+    };
+
+    fetchPost();
+  }, [id]);
+
+  if (loading) return <Text>Loading...</Text>;
+  if (!post) return <Text>Post Not Found!</Text>;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
@@ -45,10 +64,12 @@ export default function PostDetailed() {
             marginBottom: 10,
           }}
         >
-          <Text style={{ marginRight: 15 }}>⏱ {detailedPost.duration}</Text>
-          <Text style={{ marginRight: 15 }}>👥 {detailedPost.players}</Text>
+          <Text style={{ marginRight: 15 }}>⏱ {post.duration}</Text>
+          <Text style={{ marginRight: 15 }}>
+            👥 {post.player_number} players
+          </Text>
           <Text>
-            ⭐ {detailedPost.rating.score} ({detailedPost.rating.count})
+            ⭐ {post.rating_avg.toFixed(1)} ({post.rating_count})
           </Text>
         </View>
 
@@ -61,7 +82,7 @@ export default function PostDetailed() {
             marginBottom: 15,
           }}
         >
-          {detailedPost.tags.map((tag: string, index: number) => (
+          {post.tags.map((tag, index) => (
             <View
               key={index}
               style={{
@@ -75,7 +96,7 @@ export default function PostDetailed() {
             </View>
           ))}
         </View>
-        <Text style={{ color: "gray" }}>{detailedPost.description}</Text>
+        <Text style={{ color: "gray" }}>{post.description}</Text>
       </View>
 
       {/* User */}
@@ -93,11 +114,11 @@ export default function PostDetailed() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image
-            source={{ uri: detailedPost.user.image }}
+            source={{ uri: post.user.image }}
             style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
           />
           <View>
-            <Text style={{ fontWeight: "bold" }}>{detailedPost.user.name}</Text>
+            <Text style={{ fontWeight: "bold" }}>{post.user.name}</Text>
           </View>
         </View>
         <Pressable
@@ -124,9 +145,9 @@ export default function PostDetailed() {
         }}
       >
         <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}>
-          Drills ({detailedPost.drills.length})
+          Drills ({post.drills.length})
         </Text>
-        {detailedPost.drills.map((drill, index) => (
+        {post.drills.map((drill, index) => (
           <View
             key={index}
             style={{
@@ -152,7 +173,7 @@ export default function PostDetailed() {
             <Text style={{ color: "gray", marginBottom: 5 }}>
               {drill.description}
             </Text>
-            {drill.steps.map((step, stepIndex) => (
+            {drill.steps?.map((step, stepIndex) => (
               <Text key={stepIndex} style={{ fontSize: 13, color: "#444" }}>
                 • {step}
               </Text>

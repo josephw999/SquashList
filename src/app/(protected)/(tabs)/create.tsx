@@ -14,6 +14,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { insertPost } from "../../../services/postService";
+import { Alert } from "react-native";
 
 type Drill = {
   name: string;
@@ -32,6 +35,34 @@ export default function CreateScreen() {
   const [drills, setDrills] = useState<Drill[]>([
     { name: "", minutes: 0, seconds: 0, description: "", collapsed: false },
   ]);
+
+  const queryClient = useQueryClient();
+
+  const user = { id: "1" }; // Replace with real user ID
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      insertPost({
+        title: sessionTitle,
+        description,
+        user_id: user.id,
+        tags: selectedFocus,
+        player_number: parseInt(selectedPlayer),
+        // drills: drills.map((d) => ({
+        //   title: d.name,
+        //   duration: d.minutes * 60 + d.seconds,
+        //   description: d.description,
+        // })),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] }); // Optional cache refresh
+      Alert.alert("Success", "Training session created");
+      router.back(); // Go back after creating
+    },
+    onError: (error: any) => {
+      Alert.alert("Error", error.message || "Failed to create session");
+    },
+  });
 
   const toggleFocus = (item: string) => {
     setSelectedFocus((prev) =>
@@ -403,8 +434,10 @@ export default function CreateScreen() {
 
             {/* Create Session Button */}
             <Pressable
+              onPress={() => mutate()}
+              disabled={isPending || !sessionTitle || !description}
               style={{
-                backgroundColor: "#7A7A7A",
+                backgroundColor: isPending ? "#ccc" : "#7A7A7A",
                 padding: 16,
                 borderRadius: 10,
                 alignItems: "center",
@@ -414,7 +447,7 @@ export default function CreateScreen() {
               <Text
                 style={{ color: "white", fontWeight: "bold", fontSize: 16 }}
               >
-                Create Session
+                {isPending ? "Creating..." : "Create Session"}
               </Text>
             </Pressable>
           </View>

@@ -3,23 +3,25 @@ import PostListItem from "../../../components/PostListItem";
 // import posts from "../../../../assets/data/posts.json";
 import { fetchPosts } from "../../../services/postService";
 import { useQuery } from "@tanstack/react-query";
+import { useSupabase } from "../../../lib/supabase";
 
 // import { supabase } from "../../../lib/supabase";
 // import { useState, useEffect } from "react";
 import { Tables } from "../../../types/database.types";
 
 type Post = Tables<"posts"> & {
-  user: Tables<"users">;
+  //   user: Tables<"users">;
 };
 
 export default function HomeTab() {
+  const supabase = useSupabase();
   const {
     data: posts,
     isLoading,
     error,
   } = useQuery({
     queryKey: ["posts"],
-    queryFn: fetchPosts,
+    queryFn: () => fetchPosts(supabase),
     staleTime: 1000 * 60 * 5,
   });
 

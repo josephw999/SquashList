@@ -11,7 +11,7 @@ export default function PostListItem({ post }: PostListItemProps) {
     <View style={styles.card}>
       {/* TITLE + SUBTITLE */}
       <Text style={styles.title}>{post.title}</Text>
-      <Text style={styles.subtitle}>by {post.user.name}</Text>
+      <Text style={styles.subtitle}>by {post.user?.name}</Text>
 
       {/* META INFO */}
       <View style={styles.metaRow}>

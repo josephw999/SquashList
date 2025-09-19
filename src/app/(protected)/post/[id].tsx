@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useEffect, useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import { useSupabase } from "../../../lib/supabase";
 import { Post } from "../../../types/types";
 
 export default function PostDetailed() {
@@ -9,6 +9,8 @@ export default function PostDetailed() {
   const navigation = useNavigation();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const supabase = useSupabase();
 
   useEffect(() => {
     if (!id) return;
@@ -22,7 +24,6 @@ export default function PostDetailed() {
         .select(
           `
           *,
-          user:users!posts_user_id_fkey(*),
           drills(*)
         `
         )
@@ -114,11 +115,11 @@ export default function PostDetailed() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image
-            source={{ uri: post.user.image }}
+            source={{ uri: post.user?.image }}
             style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
           />
           <View>
-            <Text style={{ fontWeight: "bold" }}>{post.user.name}</Text>
+            <Text style={{ fontWeight: "bold" }}>{post.user?.name}</Text>
           </View>
         </View>
         <Pressable

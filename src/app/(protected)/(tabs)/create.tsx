@@ -17,6 +17,7 @@ import { router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { insertPost } from "../../../services/postService";
 import { Alert } from "react-native";
+import { useSupabase } from "../../../lib/supabase";
 
 type Drill = {
   name: string;
@@ -37,23 +38,25 @@ export default function CreateScreen() {
   ]);
 
   const queryClient = useQueryClient();
-
-  const user = { id: "1" }; // Replace with real user ID
+  const supabase = useSupabase();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
-      insertPost({
-        title: sessionTitle,
-        description,
-        user_id: user.id,
-        tags: selectedFocus,
-        player_number: parseInt(selectedPlayer),
-        // drills: drills.map((d) => ({
-        //   title: d.name,
-        //   duration: d.minutes * 60 + d.seconds,
-        //   description: d.description,
-        // })),
-      }),
+      insertPost(
+        {
+          title: sessionTitle,
+          description,
+          // user_id: "1",
+          tags: selectedFocus,
+          player_number: parseInt(selectedPlayer),
+          // drills: drills.map((d) => ({
+          //   title: d.name,
+          //   duration: d.minutes * 60 + d.seconds,
+          //   description: d.description,
+          // })),
+        },
+        supabase
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] }); // Optional cache refresh
       Alert.alert("Success", "Training session created");

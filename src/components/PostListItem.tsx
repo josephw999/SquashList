@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Post } from "../types/types";
 import { Link } from "expo-router";
+import { AntDesign } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type PostListItemProps = {
   post: Post;
@@ -10,8 +12,16 @@ export default function PostListItem({ post }: PostListItemProps) {
   return (
     <View style={styles.card}>
       {/* TITLE + SUBTITLE */}
-      <Text style={styles.title}>{post.title}</Text>
-      <Text style={styles.subtitle}>by {post.user?.name}</Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View>
+          <Text style={styles.title}>{post.title}</Text>
+          <Text style={styles.subtitle}>by {post.user?.name}</Text>
+        </View>
+        <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
+          <MaterialIcons name="bookmark-outline" size={20} />
+          <AntDesign name="delete" size={18} />
+        </View>
+      </View>
 
       {/* META INFO */}
       <View style={styles.metaRow}>

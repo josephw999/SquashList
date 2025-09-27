@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation, Stack } from "expo-router";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { useSupabase } from "../../../lib/supabase";

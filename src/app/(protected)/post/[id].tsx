@@ -3,6 +3,13 @@ import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { useSupabase } from "../../../lib/supabase";
 import { Post } from "../../../types/types";
+import { AntDesign } from "@expo/vector-icons";
+import { ActivityIndicator } from "react-native";
+import { useMutation } from "@tanstack/react-query";
+import { deletePostById } from "../../../services/postService";
+import { Alert } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams();
@@ -10,12 +17,14 @@ export default function PostDetailed() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   const supabase = useSupabase();
+  const postId = id as string;
 
   useEffect(() => {
     if (!id) return;
-
-    const postId = Number(id);
 
     const fetchPost = async () => {
       setLoading(true);
@@ -43,12 +52,37 @@ export default function PostDetailed() {
     fetchPost();
   }, [id]);
 
-  if (loading) return <Text>Loading...</Text>;
+  const { mutate: deletePost } = useMutation({
+    mutationFn: () => deletePostById(postId, supabase),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      router.back();
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.message);
+    },
+  });
+
+  if (loading) return <ActivityIndicator />;
   if (!post) return <Text>Post Not Found!</Text>;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 10 }}>
       {/* Header Meta */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <AntDesign
+                onPress={() => deletePost()}
+                name="delete"
+                size={24}
+                color="black"
+              />
+            </View>
+          ),
+        }}
+      />
       <View
         style={{
           borderWidth: 1,

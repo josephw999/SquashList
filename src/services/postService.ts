@@ -34,3 +34,15 @@ export const insertPost = async (
     return data;
   }
 };
+
+export const deletePostById = async (
+  id: number,
+  supabase: SupabaseClient<Database>
+) => {
+  const { data, error } = await supabase.from("posts").delete().eq("id", id);
+  if (error) {
+    throw error;
+  } else {
+    return data;
+  }
+};

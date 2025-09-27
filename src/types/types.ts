@@ -1,5 +1,5 @@
 export type Post = {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
   user: User;
@@ -18,13 +18,13 @@ export type Rating = {
 };
 
 export type User = {
-  id: number;
+  id: string;
   name: string;
   image: string | undefined;
 };
 
 export type Drill = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   duration: number;

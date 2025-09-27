@@ -19,7 +19,6 @@ export default function PostListItem({ post }: PostListItemProps) {
         </View>
         <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
           <MaterialIcons name="bookmark-outline" size={20} />
-          <AntDesign name="delete" size={18} />
         </View>
       </View>
 

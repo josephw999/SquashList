@@ -46,7 +46,6 @@ export default function CreateScreen() {
         {
           title: sessionTitle,
           description,
-          // user_id: "1",
           tags: selectedFocus,
           player_number: parseInt(selectedPlayer),
           // drills: drills.map((d) => ({

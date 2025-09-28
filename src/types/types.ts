@@ -2,6 +2,7 @@ export type Post = {
   id: string;
   title: string;
   description: string | null;
+  user_id: string | null;
   user: User;
   rating: Rating;
   duration: number;

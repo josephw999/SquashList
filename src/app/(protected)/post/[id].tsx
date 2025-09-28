@@ -10,18 +10,36 @@ import { deletePostById } from "../../../services/postService";
 import { Alert } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const router = useRouter();
 
   const supabase = useSupabase();
   const postId = id as string;
+
+  const { isLoaded, isSignedIn, userId } = useAuth(); // Get Clerk's auth state
+
+  useEffect(() => {
+    if (isLoaded) {
+      if (!isSignedIn || !userId) {
+        console.log("No user signed in, redirecting to login");
+        setError("Please log in to view this page.");
+        if (router) router.replace("/login");
+        return;
+      }
+      setCurrentUserId(userId);
+      console.log("Current User ID from Clerk:", userId); // Debug user ID
+    }
+  }, [isLoaded, isSignedIn, userId, router]); // Depend on Clerk's state
 
   useEffect(() => {
     if (!id) return;
@@ -30,12 +48,7 @@ export default function PostDetailed() {
       setLoading(true);
       const { data, error } = await supabase
         .from("posts")
-        .select(
-          `
-          *,
-          drills(*)
-        `
-        )
+        .select(`*, drills(*), user_id`)
         .eq("id", postId)
         .single();
 
@@ -43,6 +56,7 @@ export default function PostDetailed() {
         console.error("Error fetching post:", error);
         setPost(null);
       } else {
+        console.log("Fetched post data:", data); // Debug fetched post
         setPost(data as Post);
         navigation.setOptions({ title: data.title });
       }
@@ -63,6 +77,26 @@ export default function PostDetailed() {
     },
   });
 
+  // Function to handle delete with confirmation
+  const handleDelete = () => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this post?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: () => deletePost(), // Proceed with deletion if confirmed
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   if (loading) return <ActivityIndicator />;
   if (!post) return <Text>Post Not Found!</Text>;
 
@@ -71,16 +105,17 @@ export default function PostDetailed() {
       {/* Header Meta */}
       <Stack.Screen
         options={{
-          headerRight: () => (
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <AntDesign
-                onPress={() => deletePost()}
-                name="delete"
-                size={24}
-                color="black"
-              />
-            </View>
-          ),
+          headerRight: () =>
+            currentUserId === post.user_id ? (
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <AntDesign
+                  onPress={handleDelete}
+                  name="delete"
+                  size={24}
+                  color="black"
+                />
+              </View>
+            ) : null,
         }}
       />
       <View

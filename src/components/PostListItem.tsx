@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Post } from "../types/types";
 import { Link } from "expo-router";
-import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 
 type PostListItemProps = {

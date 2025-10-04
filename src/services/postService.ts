@@ -5,7 +5,6 @@ export const fetchPosts = async (supabase: SupabaseClient<Database>) => {
   const { data, error } = await supabase
     .from("posts")
     .select("*")
-    // .select("*, user:users!posts_user_id_fkey(*)")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -36,7 +35,7 @@ export const insertPost = async (
 };
 
 export const deletePostById = async (
-  id: number,
+  id: string,
   supabase: SupabaseClient<Database>
 ) => {
   const { data, error } = await supabase.from("posts").delete().eq("id", id);

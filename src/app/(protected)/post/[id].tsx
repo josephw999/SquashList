@@ -1,3 +1,4 @@
+// [id].tsx (PostDetailed)
 import { useLocalSearchParams, useNavigation, Stack } from "expo-router";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link } from "expo-router"; // Import Link for navigation
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams();
@@ -420,7 +422,7 @@ export default function PostDetailed() {
                 </Text>
                 <Text style={{ color: "gray" }}>
                   {Math.floor(drill.duration / 60)}:
-                  {(drill.duration % 60).toString().padStart(2, "0")}
+                  {(drill.duration % 60).toString().padStart(2, "0")} min
                 </Text>
               </View>
               <Text style={{ color: "gray", marginBottom: 5 }}>
@@ -474,18 +476,20 @@ export default function PostDetailed() {
       </View>
 
       {/* Start Button */}
-      <Pressable
-        style={{
-          backgroundColor: "black",
-          borderRadius: 10,
-          paddingVertical: 15,
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ color: "white", fontWeight: "bold" }}>
-          Start Training Session
-        </Text>
-      </Pressable>
+      <Link href={`/training/${postId}`} asChild>
+        <Pressable
+          style={{
+            backgroundColor: "black",
+            borderRadius: 10,
+            paddingVertical: 15,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "white", fontWeight: "bold" }}>
+            Start Training Session
+          </Text>
+        </Pressable>
+      </Link>
     </ScrollView>
   );
 }

@@ -15,9 +15,9 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { insertPost } from "../../../services/postService";
 import { Alert } from "react-native";
 import { useSupabase } from "../../../lib/supabase";
+import { useAuth } from "@clerk/clerk-expo";
 
 type Drill = {
   name: string;
@@ -39,29 +39,69 @@ export default function CreateScreen() {
 
   const queryClient = useQueryClient();
   const supabase = useSupabase();
+  const { userId, user } = useAuth(); // Get Clerk user details
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
-      insertPost(
-        {
+    mutationFn: async () => {
+      if (!userId) {
+        throw new Error("You must be logged in to create a post");
+      }
+
+      // Calculate total session duration in seconds
+      const totalDuration = drills.reduce(
+        (sum, d) => sum + d.minutes * 60 + d.seconds,
+        0
+      );
+
+      // Insert the post first to get its ID
+      const { data: newPost, error: postError } = await supabase
+        .from("posts")
+        .insert({
           title: sessionTitle,
           description,
           tags: selectedFocus,
-          player_number: parseInt(selectedPlayer),
-          // drills: drills.map((d) => ({
-          //   title: d.name,
-          //   duration: d.minutes * 60 + d.seconds,
-          //   description: d.description,
-          // })),
-        },
-        supabase
-      ),
+          player_number: parseInt(selectedPlayer.split(" ")[0]), // e.g., 1 from "1 player"
+          duration: totalDuration, // Total seconds
+          user_id: userId,
+        })
+        .select()
+        .single();
+
+      if (postError) {
+        console.error("Post insert error:", postError); // Debug in console
+        throw postError;
+      }
+
+      // Insert drills (if any valid ones)
+      const validDrills = drills.filter((d) => d.name.trim()); // Skip empty
+      if (validDrills.length > 0) {
+        const drillsData = validDrills.map((d) => ({
+          post_id: newPost.id,
+          title: d.name,
+          duration: d.minutes * 60 + d.seconds, // Drill duration in seconds
+          description: d.description,
+          // Removed steps to avoid schema error
+        }));
+
+        const { error: drillsError } = await supabase
+          .from("drills")
+          .insert(drillsData);
+
+        if (drillsError) {
+          console.error("Drills insert error:", drillsError); // Debug in console
+          throw drillsError;
+        }
+      }
+
+      return newPost;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] }); // Optional cache refresh
+      queryClient.invalidateQueries({ queryKey: ["posts"] }); // Refresh lists
       Alert.alert("Success", "Training session created");
-      router.back(); // Go back after creating
+      router.back();
     },
     onError: (error: any) => {
+      console.error("Mutation error:", error); // Debug full error
       Alert.alert("Error", error.message || "Failed to create session");
     },
   });

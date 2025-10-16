@@ -14,7 +14,9 @@ export default function PostListItem({ post }: PostListItemProps) {
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View>
           <Text style={styles.title}>{post.title}</Text>
-          <Text style={styles.subtitle}>by {post.user?.name}</Text>
+          <Text style={styles.subtitle}>
+            by {post.username || "Unknown User"}
+          </Text>
         </View>
         <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
           <MaterialIcons name="bookmark-outline" size={20} />
@@ -23,10 +25,13 @@ export default function PostListItem({ post }: PostListItemProps) {
 
       {/* META INFO */}
       <View style={styles.metaRow}>
-        <Text style={styles.meta}>⏱ {post.duration}min</Text>
+        <Text style={styles.meta}>
+          ⏱ {Math.floor(post.duration / 60)}:
+          {(post.duration % 60).toString().padStart(2, "0")}
+        </Text>
         <Text style={styles.meta}>👥 {post.player_number} players </Text>
         <Text style={styles.meta}>
-          ⭐ {post.rating_avg} ({post.rating_count})
+          ⭐ {post.rating_avg?.toFixed(1) || "0.0"} ({post.rating_count || 0})
         </Text>
       </View>
 
@@ -43,7 +48,6 @@ export default function PostListItem({ post }: PostListItemProps) {
       <Text style={styles.description}>{post.description}</Text>
 
       {/* BUTTON */}
-
       <Link href={`/post/${post.id}`} asChild>
         <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Open Session</Text>
@@ -51,11 +55,6 @@ export default function PostListItem({ post }: PostListItemProps) {
       </Link>
     </View>
   );
-}
-
-{
-  {
-  }
 }
 
 const styles = StyleSheet.create({

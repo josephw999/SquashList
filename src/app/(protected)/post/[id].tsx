@@ -17,7 +17,6 @@ export default function PostDetailed() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const [post, setPost] = useState<Post | null>(null);
-  const [user, setUser] = useState<any>(null); // Separate state for user details
   const [ratingAvg, setRatingAvg] = useState(0); // Separate state for avg to avoid full re-render
   const [ratingCount, setRatingCount] = useState(0); // Separate state for count
   const [loading, setLoading] = useState(true);
@@ -188,14 +187,14 @@ export default function PostDetailed() {
     }
   };
 
-  // Function to fetch post (no join)
+  // Function to fetch post (no join; username now in post)
   const fetchPost = async () => {
     if (!postId) return;
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("posts")
-        .select(`*, drills(*)`) // No user join - fetch user separately
+        .select(`*, drills(*)`) // username is now a column in posts
         .eq("id", postId)
         .single();
 
@@ -211,23 +210,7 @@ export default function PostDetailed() {
         setRatingAvg(data.rating_avg || 0);
         setRatingCount(data.rating_count || 0);
 
-        // Fetch user separately if user_id exists
-        if (data.user_id) {
-          const { data: userData, error: userError } = await supabase
-            .from("users") // Assuming your users table name
-            .select("*")
-            .eq("id", data.user_id)
-            .single();
-
-          if (userError) {
-            console.error("Error fetching user:", userError);
-            setUser(null);
-          } else {
-            setUser(userData);
-          }
-        } else {
-          setUser(null);
-        }
+        // No need to fetch user separately; use post.username and post.image_url if added
       }
     } catch (err) {
       console.error("Unexpected error fetching post:", err);
@@ -327,7 +310,10 @@ export default function PostDetailed() {
             marginBottom: 10,
           }}
         >
-          <Text style={{ marginRight: 15 }}>⏱ {post.duration}</Text>
+          <Text style={{ marginRight: 15 }}>
+            ⏱ {Math.floor(post.duration / 60)}:
+            {(post.duration % 60).toString().padStart(2, "0")} min
+          </Text>
           <Text style={{ marginRight: 15 }}>
             👥 {post.player_number} players
           </Text>
@@ -376,12 +362,12 @@ export default function PostDetailed() {
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image
-            source={{ uri: user?.image || "" }} // Empty fallback to prevent invalid URI
+            source={{ uri: post.image_url || "https://via.placeholder.com/40" }} // Use post.image_url if added, else default
             style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }}
           />
           <View>
             <Text style={{ fontWeight: "bold" }}>
-              {user ? user.name : "Unknown User"}
+              {post.username || "Unknown User"}
             </Text>
           </View>
         </View>
@@ -408,41 +394,55 @@ export default function PostDetailed() {
         }}
       >
         <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}>
-          Drills ({post.drills.length})
+          Drills ({post.drills?.length || 0})
         </Text>
-        {post.drills.map((drill, index) => (
-          <View
-            key={index}
-            style={{
-              borderWidth: 1,
-              borderColor: "#E8E8E8",
-              borderRadius: 10,
-              padding: 12,
-              marginBottom: 12,
-            }}
-          >
+        {post.drills && post.drills.length > 0 ? (
+          post.drills.map((drill, index) => (
             <View
+              key={index}
               style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginBottom: 5,
+                borderWidth: 1,
+                borderColor: "#E8E8E8",
+                borderRadius: 10,
+                padding: 12,
+                marginBottom: 12,
               }}
             >
-              <Text style={{ fontWeight: "bold" }}>
-                {index + 1}. {drill.title}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 5,
+                }}
+              >
+                <Text style={{ fontWeight: "bold" }}>
+                  {index + 1}. {drill.title || "Untitled"}
+                </Text>
+                <Text style={{ color: "gray" }}>
+                  {Math.floor(drill.duration / 60)}:
+                  {(drill.duration % 60).toString().padStart(2, "0")}
+                </Text>
+              </View>
+              <Text style={{ color: "gray", marginBottom: 5 }}>
+                {drill.description || "No description"}
               </Text>
-              <Text style={{ color: "gray" }}>{drill.duration}</Text>
+              {drill.steps?.length > 0
+                ? drill.steps.map((step, stepIndex) => (
+                    <Text
+                      key={stepIndex}
+                      style={{ fontSize: 13, color: "#444" }}
+                    >
+                      • {step}
+                    </Text>
+                  ))
+                : null}
             </View>
-            <Text style={{ color: "gray", marginBottom: 5 }}>
-              {drill.description}
-            </Text>
-            {drill.steps?.map((step, stepIndex) => (
-              <Text key={stepIndex} style={{ fontSize: 13, color: "#444" }}>
-                • {step}
-              </Text>
-            ))}
-          </View>
-        ))}
+          ))
+        ) : (
+          <Text style={{ color: "gray", textAlign: "center" }}>
+            No drills available
+          </Text>
+        )}
       </View>
       {/* Rate Session */}
       <View
